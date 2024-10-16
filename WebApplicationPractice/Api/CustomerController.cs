@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using WebApplicationPractice.Data;
 using WebApplicationPractice.Data.Entities;
 using WebApplicationPractice.Models;
@@ -62,7 +63,7 @@ namespace WebApplicationPractice.Api
 
         // POST: api/Customer
         [HttpPost]
-        public async Task<ActionResult<object>> CreateRecord(CustomerModel input)
+        public async Task<ActionResult<object>> CreateRecord(CustomerInputModel input)
         {
             var newRecord = new Customer
             {
@@ -78,6 +79,24 @@ namespace WebApplicationPractice.Api
             await _context.SaveChangesAsync();
 
             return newRecord;
+        }
+
+        // PUT: api/Customer/id
+        [HttpPut("{*id}")]
+        public async Task<IActionResult> UpdateRecord(long id, CustomerInputModel input)
+        {
+            var record = await _context.Customer.FirstOrDefaultAsync(x => x.Id == id);
+            if (record == null) return NotFound();
+
+            record.Name = input.Name;
+            record.Email = input.Email;
+            record.PhoneNumber = input.PhoneNumber;
+            record.DateOfBirth = input.DateOfBirth;
+            record.LastModifiedTimestamp = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         // DELETE: api/Customer/id
